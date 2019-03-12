@@ -30,9 +30,10 @@ const _v = {
   },
   dirs: [],
   plugins: [
-    // {title: '轉換1', cmd: 'php', file: 'cover.php', argv: ''},
+    {title: '編譯 Markdown', cmd: 'php', file: 'Cover.php', argv: null},
   ]
 };
+
 
 Ginkgo.init('Ginkgo 上傳工具', function() {
 
@@ -87,6 +88,13 @@ Ginkgo.init('Ginkgo 上傳工具', function() {
 
   function checkEnv() {
     rq('./libs/node/demo/check').run(_v, function(cho) {
+    
+      if (cho.goal == 'gh-pages') {
+        _v.plugins[0].argv = '--base-url https://' + _v.gitOri.url[0] + '.github.io/' + _v.gitOri.url[1] + '/';
+      } else {
+        _v.plugins[0].argv = '--base-url https://' + _v.s3Info.domain + '/' + (_v.s3Info.folder.length ? _v.s3Info.folder + '/' : '');
+      }
+    
       return pp(ln + cc(' 【設定分支】', 'y') + ln) && newBranch();
     });
   }
@@ -102,6 +110,8 @@ Ginkgo.init('Ginkgo 上傳工具', function() {
   rq('./libs/node/demo/argvs').run(process.argv, _v);
 
   rq('./libs/node/demo/choice').run(_v, function(cho) {
+  
+
     return cho.goal == 'gh-pages' ?
       pp(ln + cc(' 【檢查環境】', 'y') + ln) && checkEnv() :
       pp(ln + cc(' 【S3 設定】', 'y') + ln) && s3Info();
